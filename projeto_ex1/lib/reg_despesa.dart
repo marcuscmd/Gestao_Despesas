@@ -11,7 +11,6 @@ class RegDespesa extends StatefulWidget {
 }
 
 class _RegDespesa extends State<RegDespesa> {
-
   List<Despesa> despesa = [];
 
   final DespesaDao dao = DespesaDao();
@@ -19,9 +18,8 @@ class _RegDespesa extends State<RegDespesa> {
   TextEditingController nomeDespesa = TextEditingController();
   TextEditingController tipoDespesa = TextEditingController();
   TextEditingController valorDespesa = TextEditingController();
+  // ignore: unused_field
   double _valorDespesaDouble = 0;
-
-
 
   _RegDespesa() {
     dao.connect().then((value) {
@@ -29,7 +27,7 @@ class _RegDespesa extends State<RegDespesa> {
     });
   }
 
-    load() {
+  load() {
     dao.list().then((value) {
       setState(() {
         despesa = value;
@@ -48,19 +46,22 @@ class _RegDespesa extends State<RegDespesa> {
 
   @override
   Widget build(BuildContext context) {
-      
     return Scaffold(
+      backgroundColor: Colors.grey[200],
       appBar: AppBar(
+        backgroundColor: Colors.grey[200],
+        elevation: 0,
+        leading: Container(),
+        automaticallyImplyLeading: false,
         centerTitle: true,
-      title: const Text('Registrar Despesas',
-      style: TextStyle(
-        fontSize: 30,
-        fontWeight: FontWeight.bold
-      )),
+        title: const Text('Registrar Despesas',
+            style: TextStyle(
+                fontSize: 30,
+                color: Colors.black,
+                fontWeight: FontWeight.bold)),
       ),
       body: Container(
-        margin: const EdgeInsets.only(top: 5),
-        padding: const EdgeInsets.all(5),
+        padding: const EdgeInsets.all(30),
         child: Form(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,37 +105,71 @@ class _RegDespesa extends State<RegDespesa> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    if(nomeDespesa.text.trim() != ''){
-                      var dep = Despesa(
-                        nomeDespesa: nomeDespesa.text, 
-                        tipoDespesa: tipoDespesa.text, 
-                        valorDespesa: _valorDespesaDouble = double.parse(valorDespesa.text),
-                        );
-                        dao.insert(dep).then((value) {
-                          load();
-                        });
-                    }
-                  },
-                  child: const Text('Enviar'),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: ((context) => ListaDespesa())));
-                  },
-                  child: const Text('Consultar Despesas'),
-                ),
-              ),
-              ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[200],
+                        foregroundColor: Colors.black,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(100),
+                          ),
+                          side: BorderSide(width: 2, color: Colors.black),
+                        ),
+                      ),
+                      onPressed: () {
+                        if (nomeDespesa.text.trim() != '') {
+                          var dep = Despesa(
+                            nomeDespesa: nomeDespesa.text,
+                            tipoDespesa: tipoDespesa.text,
+                            valorDespesa: _valorDespesaDouble =
+                                double.parse(valorDespesa.text),
+                          );
+                          dao.insert(dep).then(
+                            (value) {
+                              load();
+                            },
+                          );
+                        }
+                      },
+                      child: const Text('     Enviar     '),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[200],
+                        foregroundColor: Colors.black,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(100),
+                          ),
+                          side: BorderSide(width: 2, color: Colors.black),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: ((context) => const ListaDespesa())));
+                      },
+                      child: const Text('Consultar Despesas'),
+                    ),
+                  ),
+                ],
               ),
               listView(),
-              Text('Total: RS ${soma()}')
+              Center(
+                child: Text(
+                  'Total: RS ${soma()}',
+                  style: const TextStyle(
+                      fontSize: 20,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
             ],
           ),
         ),
@@ -145,35 +180,51 @@ class _RegDespesa extends State<RegDespesa> {
   listView() {
     return Expanded(
       child: ListView.builder(
-        //shrinkWrap: true,
         itemCount: despesa.length,
+        padding: const EdgeInsets.only(bottom: 10, top: 10),
         itemBuilder: (context, index) {
-          //cria um lista com título e subtítulo
-          return ListTile(
-            title: Text(
-              despesa[index].nomeDespesa,
-              style: const TextStyle(
-                fontSize: 20.0,
-                color: Colors.black,
-              ),
+          Map item = despesa[index].toMap();
+          return GestureDetector(
+            onTap: () {},
+            child: Container(
+              margin: const EdgeInsets.all(1),
+              child: Card(
+                  elevation: 5,
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: Text(
+                          item['nomeDespesa'],
+                          style: const TextStyle(
+                              fontSize: 20,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          item['tipoDespesa'],
+                          style: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        trailing: Text(
+                          'RS ${item['valorDespesa']}',
+                          style: const TextStyle(
+                              fontSize: 20,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  )),
             ),
-            subtitle: Text('Tipo: ${despesa[index].tipoDespesa}\nRS ${despesa[index].valorDespesa}'),
-            //ao clicar sobre um contato da lista, exibe seu
-            //nome e telefone
-            onTap: () {
-              setState(() {
-                nomeDespesa.text = despesa[index].nomeDespesa;
-                tipoDespesa.text = despesa[index].tipoDespesa;
-                valorDespesa.text = despesa[index].valorDespesa.toString();
-              });
-            },
           );
         },
       ),
     );
   }
 
-  double soma(){
+  double soma() {
     double total = 0;
     for (var valor in despesa) {
       total += valor.valorDespesa;

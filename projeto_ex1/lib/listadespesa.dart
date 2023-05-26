@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'models/despesa.dart';
 import 'models/despesas_dao.dart';
 
-
 class ListaDespesa extends StatefulWidget {
   const ListaDespesa({super.key});
 
@@ -12,20 +11,19 @@ class ListaDespesa extends StatefulWidget {
 }
 
 class _ListaDespesa extends State<ListaDespesa> {
-
-
   final DespesaDao dao = DespesaDao();
 
   List<Despesa> despesa = [];
 
   bool _isValor = false;
 
+  double total = 0;
+
   TextEditingController nomeDespesa = TextEditingController();
   TextEditingController tipoDespesa = TextEditingController();
   TextEditingController valorDespesa = TextEditingController();
 
-
-    _ListaDespesa() {
+  _ListaDespesa() {
     dao.connect().then((value) {
       load();
     });
@@ -45,13 +43,15 @@ class _ListaDespesa extends State<ListaDespesa> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[200],
       appBar: AppBar(
+        backgroundColor: Colors.grey[200],
         centerTitle: true,
         title: const Text('Consultar Despesa'),
       ),
       body: Container(
         margin: const EdgeInsets.only(top: 5, right: 10, left: 10),
-        padding: const EdgeInsets.all(5),
+        padding: const EdgeInsets.all(30),
         child: Form(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,20 +72,46 @@ class _ListaDespesa extends State<ListaDespesa> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _isValor = !_isValor;
-                    });
-                  },
-                  child: const Text('Pesquisar Despesa'),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[200],
+                        foregroundColor: Colors.black,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(100),
+                          ),
+                          side: BorderSide(width: 2, color: Colors.black),
+                        ),
+                      ),
+                      onPressed: () {
+                        setState(
+                          () {
+                            dao.getByTipo(tipoDespesa.text).then((value) {
+                              setState(() {
+                                despesa = value;
+                                total = totalDespesa();
+                              });
+                            });
+                          },
+                        );
+                      },
+                      child: const Text('                    Pesquisar Despesa                   '),
+                    ),
+                  ),
+                ],
+              ),
+              Center(
+                child: Text(
+                  'Total: RS$total',
+                  style: const TextStyle(
+                      fontSize: 20,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
-              ],
-              ),
-              _isValor? listView(): Container(),
+              _isValor ? listView() : Container(),
             ],
           ),
         ),
@@ -95,31 +121,56 @@ class _ListaDespesa extends State<ListaDespesa> {
 
   listView() {
     return Expanded(
-      child: ListTile(
-            title: Text(
-              tipoDespesa.text,
-              style: const TextStyle(
-                fontSize: 20.0,
-                color: Colors.black,
-              ),
+      child: ListView.builder(
+        itemCount: despesa.length,
+        padding: const EdgeInsets.only(bottom: 10, top: 10),
+        itemBuilder: (context, index) {
+          Map item = despesa[index].toMap();
+          return GestureDetector(
+            onTap: () {},
+            child: Container(
+              margin: const EdgeInsets.all(1),
+              child: Card(
+                  elevation: 5,
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: Text(
+                          item['nomeDespesa'],
+                          style: const TextStyle(
+                              fontSize: 20,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          item['tipoDespesa'],
+                          style: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        trailing: Text(
+                          'RS ${item['valorDespesa']}',
+                          style: const TextStyle(
+                              fontSize: 20,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  )),
             ),
-            subtitle: Text('Total: RS${totalDespesa()}'),
-            //ao clicar sobre um contato da lista, exibe seu
-            //nome e telefone
-            onTap: () {
-              setState(() {
-              });
-            },
-          ),
-      );
+          );
+        },
+      ),
+    );
   }
 
-  double totalDespesa(){
+  double totalDespesa() {
+    _isValor = true;
     double total = 0;
     for (var valor in despesa) {
-      if(valor.tipoDespesa == tipoDespesa.text){
-        total += valor.valorDespesa;
-      }
+      total += valor.valorDespesa;
     }
     return total;
   }

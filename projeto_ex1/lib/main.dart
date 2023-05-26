@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:projeto_ex1/reg_despesa.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+
+import 'home.dart';
 
 void main() async{
  // Exibir o caminho do banco de dados
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const RegDespesa(),
+      home: const HomePage(),
     );
   }
 }

@@ -25,12 +25,10 @@ class DespesaDao {
     );
   }
 
-    //Método para retornar todos os registros do banco de dados
   //Método para retornar todos os registros do banco de dados
   Future<List<Despesa>> list() async {
     //carrega o banco de dados
     final Database db = await database;
-    //aramzena todos os registro em uma lista Map
     final List<Map<String, dynamic>> maps = await db.query(Despesa.tableName);
 
     //transfprma o Map JSON em um objeto Despesa
@@ -41,6 +39,26 @@ class DespesaDao {
         valorDespesa: maps[i][Despesa.columnValor],
       );
     });
+  }
+
+  Future<List<Despesa>> getByTipo(String tipo) async {
+
+    if (tipo == "") {
+      return await list();
+    }
+
+    final Database db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(Despesa.tableName);
+
+    final listfinal = List.generate(maps.length, (i) {
+      return Despesa(
+        nomeDespesa: maps[i][Despesa.columnDespesa],
+        tipoDespesa: maps[i][Despesa.columnTipo],
+        valorDespesa: maps[i][Despesa.columnValor],
+      );
+    });
+
+    return listfinal.where((element) => element.tipoDespesa == tipo).toList();
   }
 
   // Método para inserir um contato na banco de dados
